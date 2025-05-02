@@ -1,0 +1,29 @@
+---
+- name: Update /etc/hosts
+  hosts: all
+  become: yes
+  tasks:
+    - name: Add host entries
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ hostvars[item].ansible_host }} {{ item }}"
+        state: present
+      loop: "{{ groups['all'] }}"
+
+- name: Configure all VMs
+  hosts: all
+  become: yes
+  roles:
+    - base_setup
+
+- name: Configure proxy server
+  hosts: proxy
+  become: yes
+  roles:
+    - nginx_proxy
+
+- name: Configure app servers
+  hosts: app
+  become: yes
+  roles:
+    - nginx_app
